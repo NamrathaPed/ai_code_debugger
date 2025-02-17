@@ -1,6 +1,6 @@
 from debugger.code_executor import execute_code
 from debugger.error_parser import categorize_error
-from debugger.gpt_integration import get_fix_suggestion
+from ai_code_debugger.debugger.llama_debugger import get_fix_suggestion
 
 def debug_code_with_gpt(code: str) -> str:
     """

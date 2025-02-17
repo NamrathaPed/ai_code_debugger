@@ -1,43 +1,37 @@
 import logging
-import openai
+from llama_cpp import Llama
 import os
-import time
 
 # Set up logging configuration
 logging.basicConfig(filename='debugger.log', level=logging.DEBUG, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Simulate GPT integration function
-def call_gpt_api(prompt):
-    try:
-        # Simulate GPT call
-        openai.api_key = os.getenv("OPENAI_API_KEY")  # Ensure the API key is set
-        response = openai.Completion.create(
-            engine="gpt-3.5-turbo",
-            prompt=prompt,
-            max_tokens=150
-        )
-        return response
-    except openai.error.AuthenticationError as e:
-        logging.error(f"Authentication error occurred: {e}")
-        return "Authentication failed. Please check your API key."
-    except openai.error.RateLimitError as e:
-        logging.error(f"Rate limit exceeded: {e}")
-        return "Rate limit exceeded. Please try again later."
-    except openai.error.OpenAIError as e:
-        logging.error(f"OpenAI API error occurred: {e}")
-        return "An error occurred with the OpenAI API."
-    except Exception as e:
-        logging.error(f"Unexpected error occurred: {e}")
-        return "An unexpected error occurred."
+# Load Llama model (update the path to your downloaded model)
+MODEL_PATH = "path/to/llama-2-7b.Q4_K_M.gguf"
 
-# Simulate file parsing function
+try:
+    llm = Llama(model_path=MODEL_PATH)
+    logging.info("Llama model loaded successfully.")
+except Exception as e:
+    logging.error(f"Failed to load Llama model: {e}")
+    raise
+
+# Function to analyze code using Llama
+def analyze_code_with_llama(code):
+    try:
+        prompt = f"Analyze the following Python code for bugs and suggest fixes:\n\n{code}\n\n"
+        response = llm(prompt, max_tokens=200, stop=["\n"])
+        return response["choices"][0]["text"].strip()
+    except Exception as e:
+        logging.error(f"Error while analyzing code with Llama: {e}")
+        return "An error occurred while processing the code."
+
+# Function to parse a code file
 def parse_code(file_path):
     try:
         with open(file_path, 'r') as file:
             code = file.read()
-            # Simulate code parsing process
-            if not code:
+            if not code.strip():
                 raise ValueError("File is empty.")
             return code
     except FileNotFoundError as e:
@@ -47,26 +41,22 @@ def parse_code(file_path):
         logging.error(f"Value error: {e}")
         return f"Error: {e}"
     except Exception as e:
-        logging.error(f"Unexpected error occurred while reading file {file_path}: {e}")
+        logging.error(f"Unexpected error while reading file {file_path}: {e}")
         return "An unexpected error occurred while reading the file."
 
-# Simulate main debugging function
+# Main debugging function
 def run_debugger():
-    # Simulate reading input file
-    file_path = "some_code.py"
+    file_path = "some_code.py"  # Update this to the actual file to debug
     code = parse_code(file_path)
     if "Error" in code:
         print(code)
         return
-
-    # Simulate sending code to GPT for analysis
-    prompt = f"Analyze the following Python code for bugs:\n{code}"
-    result = call_gpt_api(prompt)
-    if "Error" in result:
-        print(result)
-        return
-
-    print("Debugging complete.")
+    
+    print("Analyzing code with Llama...")
+    result = analyze_code_with_llama(code)
+    
+    print("Debugging complete. Results:")
+    print(result)
     return result
 
 # Main execution
