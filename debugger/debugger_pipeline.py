@@ -1,16 +1,10 @@
 from debugger.code_executor import execute_code
 from debugger.error_parser import categorize_error
-from ai_code_debugger.debugger.llama_debugger import get_fix_suggestion
+from ai_code_debugger.debugger.llama_debugger import analyze_code_with_llama
 
-def debug_code_with_gpt(code: str) -> str:
+def debug_code_with_ai(code: str) -> str:
     """
-    Executes the code, identifies errors, and retrieves fix suggestions from GPT.
-
-    Args:
-        code (str): The Python code to debug.
-
-    Returns:
-        str: GPT's fix suggestion or explanation.
+    Executes the code, identifies errors, and retrieves suggestions from Llama.
     """
     # Step 1: Execute the code and capture errors
     execution_output = execute_code(code)
@@ -22,9 +16,9 @@ def debug_code_with_gpt(code: str) -> str:
     if error_details["type"] == "UnknownError":
         return "No errors detected. Your code executed successfully!"
 
-    # Step 4: Get GPT fix suggestion
-    gpt_suggestion = get_fix_suggestion(code, error_details)
-    return gpt_suggestion
+    # Step 4: Get AI fix suggestion
+    ai_suggestion = analyze_code_with_llama(code)
+    return ai_suggestion
 
 # Example usage
 if __name__ == "__main__":
@@ -32,5 +26,5 @@ if __name__ == "__main__":
 def test_function()
     print("Missing colon")
 """
-    suggestion = debug_code_with_gpt(code_to_debug)
-    print("GPT Fix Suggestion:\n", suggestion)
+    suggestion = debug_code_with_ai(code_to_debug)
+    print("AI Fix Suggestion:\n", suggestion)
