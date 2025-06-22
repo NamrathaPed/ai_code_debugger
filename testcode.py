@@ -1,4 +1,4 @@
-from debugger.code_executor import execute_code
+from debugger.executor import execute_code
 
 def test_execute_code():
     # Test 1: Successful code execution
