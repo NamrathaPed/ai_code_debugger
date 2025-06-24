@@ -35,27 +35,27 @@ def main() -> None:
     """Main execution function"""
     print_banner()
     
-    parser = argparse.ArgumentParser(description='AI Python Code Debugger')
-    parser.add_argument('file', help='Python file to debug')
-    args = parser.parse_args()
+#     parser = argparse.ArgumentParser(description='AI Python Code Debugger')
+#     parser.add_argument('file', help='Python file to debug')
+#    # args = parser.parse_args()
     
-    if not os.path.exists(args.file):
-        print(f"Error: File '{args.file}' not found")
-        sys.exit(1)
-    
+#     if not os.path.exists(args.file):
+#         print(f"Error: File '{args.file}' not found")
+#         sys.exit(1)
+    file = "test.py"
     # Read the code from the file
     try:
-        with open(args.file, 'r') as f:
+        with open(file, 'r') as f:
             code_content = f.read()
     except Exception as e:
         print(f"Error reading file: {e}")
         sys.exit(1)
     
-    print(f"\n\U0001F50D ANALYZING: {args.file}")
+    print(f"\n\U0001F50D ANALYZING: {file}")
     print("-" * 40)
     
     # Execute the code and capture any errors
-    execution_result = execute_code(args.file)
+    execution_result = execute_code(file)
     
     # Check if there's an error (handle both string and object returns)
     if hasattr(execution_result, 'error') and execution_result.error:

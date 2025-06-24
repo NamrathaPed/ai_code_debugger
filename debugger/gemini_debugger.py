@@ -10,7 +10,7 @@ logging.basicConfig(
 )
 
 class GeminiDebugger:
-    def __init__(self, model_name: str = "gemini-pro"):
+    def __init__(self, model_name: str = "gemini-2.0-flash"):
         """
         Initialize the Gemini debugger.
         """

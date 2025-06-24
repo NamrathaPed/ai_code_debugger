@@ -12,7 +12,7 @@ def execute_code(code: str, timeout: int = 10) -> str:
             tmp_path = tmp.name
 
         result = subprocess.run(
-            [sys.executable, tmp_path],
+            [sys.executable, code],
             capture_output=True,
             text=True,
             timeout=timeout,

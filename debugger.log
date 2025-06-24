@@ -1,0 +1,49 @@
+2025-06-23 18:04:05,072 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 18:05:34,390 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 18:08:53,866 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 19:06:54,716 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 19:07:18,621 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 19:13:59,229 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 19:18:20,435 - WARNING - LLaMA model not found or path not provided. Using fallback analysis.
+2025-06-23 19:24:04,818 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:24:06,758 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:24:17,724 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:39:20,874 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:40:50,804 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:41:53,118 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:43:04,110 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:48:50,380 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:51:09,112 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:51:48,330 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:51:51,570 - ERROR - Gemini analysis failed: 
+  No API_KEY or ADC found. Please either:
+    - Set the `GOOGLE_API_KEY` environment variable.
+    - Manually pass the key with `genai.configure(api_key=my_api_key)`.
+    - Or set up Application Default Credentials, see https://ai.google.dev/gemini-api/docs/oauth for more information.
+2025-06-23 19:55:01,798 - INFO - Gemini model 'gemini-pro' initialized.
+2025-06-23 19:55:02,061 - ERROR - Gemini analysis failed: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-06-24 12:21:51,345 - WARNING - Gemini API key not found. Using fallback mode.
+2025-06-24 12:22:10,170 - WARNING - Gemini API key not found. Using fallback mode.
+2025-06-24 12:30:55,372 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:30:55,588 - ERROR - Gemini analysis failed: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-06-24 12:31:16,161 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:32:40,846 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:32:56,393 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:34:34,408 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:35:04,197 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:35:04,443 - ERROR - Gemini analysis failed: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-06-24 12:39:25,186 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:45:33,409 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 12:53:07,708 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 13:04:38,061 - ERROR - Gemini analysis failed: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-06-24 13:05:07,685 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 13:09:10,821 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 13:12:29,335 - ERROR - Gemini analysis failed: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-06-24 13:14:38,634 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 13:14:50,696 - ERROR - Gemini analysis failed: 404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-06-24 13:15:03,236 - INFO - Gemini model 'gemini-pro' initialized with API key.
+2025-06-24 13:22:15,490 - INFO - Gemini model 'gemini-2.5-pro-exp-03-25' initialized with API key.
+2025-06-24 13:22:26,679 - INFO - Gemini model 'gemini-2.5-pro-exp-03-25' initialized with API key.
+2025-06-24 13:24:53,241 - INFO - Gemini model 'gemini-2.5-pro-exp-03-25' initialized with API key.
+2025-06-24 13:29:00,012 - INFO - Gemini model 'gemini-2.0-flash' initialized with API key.
+2025-06-24 13:29:31,893 - INFO - Gemini analysis completed successfully
