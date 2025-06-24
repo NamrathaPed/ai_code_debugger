@@ -9,86 +9,67 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-class LlamaDebugger:
-    def __init__(self, model_path: Optional[str] = None):
+class GeminiDebugger:
+    def __init__(self, model_name: str = "gemini-pro"):
         """
-        Initialize the LLaMA debugger.
+        Initialize the Gemini debugger.
+        """
+        self.model_name = model_name
         
-        Args:
-            model_path (str, optional): Path to LLaMA model file
-        """
-        self.llm = None
-        self.model_loaded = False
-        
-        if model_path and os.path.exists(model_path):
-            self.load_model(model_path)
-        else:
-            logging.warning("LLaMA model not found or path not provided. Using fallback analysis.")
-    
-    def load_model(self, model_path: str) -> bool:
-        """
-        Load the LLaMA model.
-        
-        Args:
-            model_path (str): Path to the model file
-            
-        Returns:
-            bool: True if model loaded successfully
-        """
+        # Try to import and configure Gemini
         try:
-            from llama_cpp import Llama
-            self.llm = Llama(
-                model_path=model_path,
-                n_ctx=2048,  # Context window
-                n_threads=4,  # Number of threads
-                verbose=False
-            )
-            self.model_loaded = True
-            logging.info(f"LLaMA model loaded successfully from {model_path}")
-            return True
+            import google.generativeai as genai
+            from google.generativeai import GenerativeModel
+            
+            # Configure API key from environment variable
+            api_key = os.getenv('GEMINI_API_KEY')
+            if api_key:
+                genai.configure(api_key=api_key)
+                self.model_loaded = True
+                self.model = GenerativeModel(model_name)
+                logging.info(f"Gemini model '{model_name}' initialized with API key.")
+            else:
+                self.model_loaded = False
+                self.model = None
+                logging.warning("Gemini API key not found. Using fallback mode.")
+                print("⚠️  Gemini API key not configured. Set GEMINI_API_KEY environment variable for AI analysis.")
         except ImportError:
-            logging.error("llama-cpp-python not installed. Install with: pip install llama-cpp-python")
-            return False
+            self.model_loaded = False
+            self.model = None
+            logging.error("Google Generative AI package not installed. Using fallback mode.")
+            print("⚠️  Google Generative AI package not found. Install with: pip install google-generativeai")
         except Exception as e:
-            logging.error(f"Failed to load LLaMA model: {e}")
-            return False
-    
-    def analyze_code_with_llama(self, code: str, error_details: dict) -> str:
+            self.model_loaded = False
+            self.model = None
+            logging.error(f"Failed to initialize Gemini: {e}")
+            print(f"⚠️  Failed to initialize Gemini: {e}")
+
+    def analyze_code_with_gemini(self, code: str, error_details: dict) -> str:
         """
-        Analyze code using LLaMA AI model.
-        
+        Analyze code using Gemini AI model.
+
         Args:
             code (str): The Python code to analyze
             error_details (dict): Error information from parser
-            
+
         Returns:
             str: AI analysis and suggestions
         """
         if not self.model_loaded:
             return self._fallback_analysis(code, error_details)
-        
-        # Create detailed prompt
+
         prompt = self._create_analysis_prompt(code, error_details)
-        
+
         try:
-            response = self.llm(
-                prompt,
-                max_tokens=800,
-                temperature=0.1,  # Low temperature for consistent responses
-                top_p=0.9,
-                stop=["```", "---"]
-            )
-            
-            analysis = response["choices"][0]["text"].strip()
-            logging.info("LLaMA analysis completed successfully")
-            return analysis
-            
+            response = self.model.generate_content(prompt)
+            result = response.text.strip()
+            logging.info("Gemini analysis completed successfully")
+            return result
         except Exception as e:
-            logging.error(f"LLaMA analysis failed: {e}")
+            logging.error(f"Gemini analysis failed: {e}")
             return self._fallback_analysis(code, error_details)
-    
+
     def _create_analysis_prompt(self, code: str, error_details: dict) -> str:
-        """Create a structured prompt for LLaMA analysis."""
         prompt = f"""You are an expert Python debugger. Analyze this code and provide help.
 
 CODE TO DEBUG:
@@ -109,34 +90,21 @@ Please provide:
 4. PREVENTION: How to avoid this error in the future
 
 Keep your response concise and practical."""
-        
         return prompt
-    
+
     def _fallback_analysis(self, code: str, error_details: dict) -> str:
-        """
-        Provide basic analysis when LLaMA is not available.
-        
-        Args:
-            code (str): The Python code
-            error_details (dict): Error information
-            
-        Returns:
-            str: Basic analysis
-        """
         error_type = error_details.get('type', 'Unknown')
         error_message = error_details.get('message', 'No message available')
         line_number = error_details.get('line_number')
-        
-        analysis = f"""BASIC ANALYSIS (LLaMA not available):
+
+        analysis = f"""BASIC ANALYSIS (Gemini not available):
 
 ERROR TYPE: {error_type}
 ERROR MESSAGE: {error_message}
 """
-        
         if line_number:
             analysis += f"LINE NUMBER: {line_number}\n"
-        
-        # Add basic suggestions based on error type
+
         if error_type == "SyntaxError":
             analysis += """
 COMMON CAUSES:
@@ -146,12 +114,11 @@ COMMON CAUSES:
 - Typos in Python keywords
 
 SOLUTION STEPS:
-1. Check line {line_number} for syntax issues
+1. Check line for syntax issues
 2. Verify all parentheses and brackets are properly closed
 3. Ensure consistent indentation (use spaces or tabs, not both)
 4. Check for typos in keywords like 'if', 'for', 'def', etc.
-""".format(line_number=line_number or "mentioned in error")
-        
+"""
         elif error_type == "NameError":
             analysis += """
 COMMON CAUSES:
@@ -164,7 +131,6 @@ SOLUTION STEPS:
 2. Check spelling of variable names
 3. Ensure variable is accessible in current scope
 """
-        
         elif error_type == "ImportError":
             analysis += """
 COMMON CAUSES:
@@ -177,15 +143,12 @@ SOLUTION STEPS:
 2. Check module name spelling
 3. Verify module compatibility with Python version
 """
-        
-        analysis += "\nFor detailed AI analysis, install and configure LLaMA model."
+        analysis += "\nFor detailed AI analysis, configure Gemini API properly."
         return analysis
 
 # Global instance
-debugger = LlamaDebugger()
+debugger = GeminiDebugger()
 
-def analyze_code_with_llama(code: str, error_details: dict) -> str:
-    """
-    Convenience function for backward compatibility.
-    """
-    return debugger.analyze_code_with_llama(code, error_details)
+def analyze_code_with_gemini(code: str, error_details: dict) -> str:
+    """Global function to analyze code with Gemini"""
+    return debugger.analyze_code_with_gemini(code, error_details)

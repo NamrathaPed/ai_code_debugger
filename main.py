@@ -1,257 +1,109 @@
-#!/usr/bin/env python3
-"""
-AI Code Debugger - Main Application
-A Python debugging tool that uses AI analysis to help fix code errors.
-"""
-
 import sys
 import os
 import argparse
-from typing import Optional
+from typing import Optional, List, Dict, Any
 
-# Import our modules
-from executor import execute_code
-from parser import categorize_error, get_error_suggestions
-from llama_debugger import analyze_code_with_llama, debugger
+# Import our modules from the debugger package
+from debugger.executor import execute_code
+from debugger.parser import categorize_error, get_error_suggestions
+from debugger.gemini_debugger import analyze_code_with_gemini
 
-def print_banner():
-    """Print application banner."""
+def print_banner() -> None:
+    """Print the application banner with Unicode decorations."""
     print("=" * 60)
-    print("🐍 AI PYTHON CODE DEBUGGER")
+    print("\U0001F40D AI PYTHON CODE DEBUGGER (Gemini Edition)")
     print("=" * 60)
-    print("An intelligent debugging assistant powered by AI")
+    print("An intelligent debugging assistant powered by Gemini AI")
     print("-" * 60)
 
-def print_error_details(error_info: dict):
-    """Print formatted error information."""
-    print("\n📊 ERROR ANALYSIS:")
+def print_error_details(error_info: Dict[str, Any]) -> None:
+    """
+    Print formatted error information.
+    
+    Args:
+        error_info: Dictionary containing error details
+    """
+    print("\n\U0001F4CA ERROR ANALYSIS:")
     print("-" * 30)
     print(f"Type: {error_info['type']}")
     print(f"Severity: {error_info['severity'].upper()}")
-    if error_info['line_number']:
+    if error_info.get('line_number'):
         print(f"Line: {error_info['line_number']}")
     print(f"Message: {error_info['message']}")
 
-def print_suggestions(suggestions: list):
-    """Print basic suggestions."""
-    if suggestions:
-        print("\n💡 QUICK SUGGESTIONS:")
-        print("-" * 30)
-        for i, suggestion in enumerate(suggestions, 1):
-            print(f"{i}. {suggestion}")
-
-def print_ai_analysis(analysis: str):
-    """Print AI analysis results."""
-    print("\n🤖 AI ANALYSIS:")
-    print("-" * 30)
-    print(analysis)
-
-def debug_code_from_string(code: str, timeout: int = 10, model_path: Optional[str] = None) -> dict:
-    """
-    Debug Python code from string input.
-    
-    Args:
-        code (str): Python code to debug
-        timeout (int): Execution timeout in seconds
-        model_path (str, optional): Path to LLaMA model
-    
-    Returns:
-        dict: Debug results
-    """
-    # Initialize model if path provided
-    if model_path and not debugger.model_loaded:
-        debugger.load_model(model_path)
-    
-    print("🔄 Executing code...")
-    
-    # Execute the code
-    output = execute_code(code, timeout)
-    
-    # Categorize any errors
-    error_info = categorize_error(output)
-    
-    # Get basic suggestions
-    suggestions = get_error_suggestions(error_info)
-    
-    # Get AI analysis
-    ai_analysis = analyze_code_with_llama(code, error_info)
-    
-    results = {
-        'code': code,
-        'output': output,
-        'error_info': error_info,
-        'suggestions': suggestions,
-        'ai_analysis': ai_analysis,
-        'success': error_info['type'] == 'NoError'
-    }
-    
-    return results
-
-def debug_code_from_file(file_path: str, timeout: int = 10, model_path: Optional[str] = None) -> dict:
-    """
-    Debug Python code from file.
-    
-    Args:
-        file_path (str): Path to Python file
-        timeout (int): Execution timeout
-        model_path (str, optional): Path to LLaMA model
-    
-    Returns:
-        dict: Debug results
-    """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            code = f.read()
-        return debug_code_from_string(code, timeout, model_path)
-    except FileNotFoundError:
-        return {
-            'error': f"File not found: {file_path}",
-            'success': False
-        }
-    except Exception as e:
-        return {
-            'error': f"Error reading file: {str(e)}",
-            'success': False
-        }
-
-def interactive_mode(model_path: Optional[str] = None):
-    """Run in interactive mode."""
+def main() -> None:
+    """Main execution function"""
     print_banner()
-    print("Interactive Mode - Enter your Python code (type 'EXIT' to quit)")
-    print("Type 'MULTILINE' for multi-line code input")
-    print("Type 'HELP' for available commands")
     
-    if model_path:
-        print(f"LLaMA Model: {model_path}")
-    else:
-        print("LLaMA Model: Not configured (using fallback analysis)")
-    
-    print("\n" + "=" * 60)
-    
-    while True:
-        try:
-            print("\n➤ Enter command or Python code:")
-            user_input = input("> ").strip()
-            
-            if user_input.upper() == 'EXIT':
-                print("👋 Goodbye!")
-                break
-            elif user_input.upper() == 'HELP':
-                print("""
-Available commands:
-- EXIT: Quit the debugger
-- MULTILINE: Enter multi-line code
-- HELP: Show this help message
-- Any Python code: Debug the code
-                """)
-                continue
-            elif user_input.upper() == 'MULTILINE':
-                print("Enter multi-line code (type 'END' on a new line to finish):")
-                code_lines = []
-                while True:
-                    line = input("  ")
-                    if line.strip().upper() == 'END':
-                        break
-                    code_lines.append(line)
-                user_input = '\n'.join(code_lines)
-            
-            if user_input.strip():
-                results = debug_code_from_string(user_input, model_path=model_path)
-                
-                # Display results
-                if results['success']:
-                    print("\n✅ CODE EXECUTED SUCCESSFULLY!")
-                    if results['output']:
-                        print(f"Output: {results['output']}")
-                else:
-                    print("\n❌ ERROR DETECTED!")
-                    print_error_details(results['error_info'])
-                    print_suggestions(results['suggestions'])
-                    print_ai_analysis(results['ai_analysis'])
-                
-        except KeyboardInterrupt:
-            print("\n👋 Goodbye!")
-            break
-        except Exception as e:
-            print(f"❌ Unexpected error: {e}")
-
-def main():
-    """Main application entry point."""
-    parser = argparse.ArgumentParser(
-        description="AI Python Code Debugger",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python main.py                          # Interactive mode
-  python main.py -f script.py             # Debug file
-  python main.py -c "print('hello')"      # Debug code string
-  python main.py -m /path/to/model.gguf   # Use LLaMA model
-        """
-    )
-    
-    parser.add_argument('-f', '--file', 
-                       help='Python file to debug')
-    parser.add_argument('-c', '--code', 
-                       help='Python code string to debug')
-    parser.add_argument('-m', '--model', 
-                       help='Path to LLaMA model file (.gguf)')
-    parser.add_argument('-t', '--timeout', type=int, default=10,
-                       help='Code execution timeout in seconds (default: 10)')
-    parser.add_argument('--quiet', action='store_true',
-                       help='Suppress banner and extra output')
-    
+    parser = argparse.ArgumentParser(description='AI Python Code Debugger')
+    parser.add_argument('file', help='Python file to debug')
     args = parser.parse_args()
     
-    # Validate model path if provided
-    if args.model and not os.path.exists(args.model):
-        print(f"❌ Error: Model file not found: {args.model}")
+    if not os.path.exists(args.file):
+        print(f"Error: File '{args.file}' not found")
         sys.exit(1)
     
-    # Handle file debugging
-    if args.file:
-        if not args.quiet:
-            print_banner()
-            print(f"🔍 Debugging file: {args.file}")
-        
-        results = debug_code_from_file(args.file, args.timeout, args.model)
-        
-        if 'error' in results:
-            print(f"❌ {results['error']}")
-            sys.exit(1)
-        
-        # Display results
-        if results['success']:
-            print("✅ CODE EXECUTED SUCCESSFULLY!")
-            if results['output']:
-                print(f"Output:\n{results['output']}")
-        else:
-            print("❌ ERROR DETECTED!")
-            print_error_details(results['error_info'])
-            print_suggestions(results['suggestions'])
-            print_ai_analysis(results['ai_analysis'])
+    # Read the code from the file
+    try:
+        with open(args.file, 'r') as f:
+            code_content = f.read()
+    except Exception as e:
+        print(f"Error reading file: {e}")
+        sys.exit(1)
     
-    # Handle code string debugging
-    elif args.code:
-        if not args.quiet:
-            print_banner()
-            print("🔍 Debugging code string...")
-        
-        results = debug_code_from_string(args.code, args.timeout, args.model)
-        
-        # Display results
-        if results['success']:
-            print("✅ CODE EXECUTED SUCCESSFULLY!")
-            if results['output']:
-                print(f"Output:\n{results['output']}")
-        else:
-            print("❌ ERROR DETECTED!")
-            print_error_details(results['error_info'])
-            print_suggestions(results['suggestions'])
-            print_ai_analysis(results['ai_analysis'])
+    print(f"\n\U0001F50D ANALYZING: {args.file}")
+    print("-" * 40)
     
-    # Default to interactive mode
+    # Execute the code and capture any errors
+    execution_result = execute_code(args.file)
+    
+    # Check if there's an error (handle both string and object returns)
+    if hasattr(execution_result, 'error') and execution_result.error:
+        # If execute_code returns an object with error attribute
+        error_info = categorize_error(execution_result.error)
+        print_error_details(error_info)
+        
+        # Get AI analysis from Gemini
+        print("\n\U0001F916 GEMINI AI ANALYSIS:")
+        print("-" * 40)
+        try:
+            ai_analysis = analyze_code_with_gemini(code_content, error_info)
+            print(ai_analysis)
+        except Exception as e:
+            print(f"AI analysis failed: {e}")
+            # Fallback to basic suggestions
+            suggestions = get_error_suggestions(error_info)
+            if suggestions:
+                print("\n\U0001F4A1 BASIC SUGGESTIONS:")
+                for i, suggestion in enumerate(suggestions, 1):
+                    print(f"{i}. {suggestion}")
+    
+    elif isinstance(execution_result, str) and execution_result.strip():
+        # If execute_code returns a string with error content
+        if "Error" in execution_result or "Traceback" in execution_result:
+            # Parse the error from the string
+            error_info = categorize_error(execution_result)
+            print_error_details(error_info)
+            
+            # Get AI analysis from Gemini
+            print("\n\U0001F916 GEMINI AI ANALYSIS:")
+            print("-" * 40)
+            try:
+                ai_analysis = analyze_code_with_gemini(code_content, error_info)
+                print(ai_analysis)
+            except Exception as e:
+                print(f"AI analysis failed: {e}")
+                # Fallback to basic suggestions
+                suggestions = get_error_suggestions(error_info)
+                if suggestions:
+                    print("\n\U0001F4A1 BASIC SUGGESTIONS:")
+                    for i, suggestion in enumerate(suggestions, 1):
+                        print(f"{i}. {suggestion}")
+        else:
+            print("\n\U0001F389 SUCCESS: Code executed without errors!")
+            print(f"Output:\n{execution_result}")
     else:
-        interactive_mode(args.model)
+        print("\n\U0001F389 SUCCESS: Code executed without errors!")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

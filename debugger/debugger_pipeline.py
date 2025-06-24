@@ -1,5 +1,5 @@
-from debugger.code_executor import execute_code
-from debugger.error_parser import categorize_error
+from debugger.executor import execute_code
+from debugger.parser import categorize_error
 from ai_code_debugger.debugger.llama_debugger import analyze_code_with_llama
 
 def debug_code_with_ai(code: str) -> str:
